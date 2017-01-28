@@ -1,0 +1,10 @@
+.*
+!.git*
+!.travis.yml
+
+/bin
+/build
+/classes
+/log
+
+*.iml
