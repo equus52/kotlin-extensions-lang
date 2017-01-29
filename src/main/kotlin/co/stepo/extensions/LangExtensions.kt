@@ -12,14 +12,6 @@ import java.util.Collection
 import java.util.stream.Collectors
 import kotlin.reflect.companionObjectInstance
 
-fun <T> nullIfException(block: () -> T?): T? {
-    return try {
-        block()
-    } catch (e: Exception) {
-        null
-    }
-}
-
 fun Number.padStart(length: Int, padChar: Char = ' '): String = this.toString().padStart(length, padChar)
 fun Number.padEnd(length: Int, padChar: Char = ' '): String = this.toString().padEnd(length, padChar)
 
