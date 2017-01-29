@@ -29,7 +29,7 @@ dependencies {
     compile(kotlinModule("reflect", extra["kotlin_version"] as String))
 
     compile("org.slf4j:slf4j-api:1.7.22")
-    compile("ch.qos.logback:logback-classic:1.1.9")
+    testCompile("ch.qos.logback:logback-classic:1.1.9")
 
     testCompile("junit:junit:4.12")
     testCompile("org.assertj:assertj-core:3.6.2")
