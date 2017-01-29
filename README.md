@@ -31,5 +31,5 @@ logger.debug { "This message is not evaluated unless debug enabled = ${logger.is
 ```
 
 ```kotlin
-logger.debugForList { createMessageList() }
+logger.debugForList(cause) { createMessageList() }
 ```
