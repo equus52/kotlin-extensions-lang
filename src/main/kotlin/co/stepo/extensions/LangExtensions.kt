@@ -8,15 +8,7 @@ import java.time.LocalDate
 import java.util.*
 import java.util.Collection
 import java.util.stream.Collectors
-import kotlin.reflect.companionObjectInstance
 
-fun Number.padStart(length: Int, padChar: Char = ' '): String = this.toString().padStart(length, padChar)
-fun Number.padEnd(length: Int, padChar: Char = ' '): String = this.toString().padEnd(length, padChar)
-
-val Double.point2: String get() {
-    if (this.isInfinite() || this.isNaN()) return this.toString()
-    return BigDecimal.valueOf(this).setScale(2, RoundingMode.HALF_UP).toPlainString()
-}
 
 //
 // Collection
@@ -125,16 +117,22 @@ fun LocalDate.isInRange(from: LocalDate, to: LocalDate): Boolean {
 }
 
 
-fun <T : Any> unwrapCompanionClass(ofClass: Class<T>): Class<*> {
-    return if (ofClass.enclosingClass != null && ofClass.enclosingClass.kotlin.companionObjectInstance?.javaClass == ofClass) {
-        ofClass.enclosingClass
-    } else {
-        ofClass
-    }
+//
+// Number
+//
+
+fun Number.padStart(length: Int, padChar: Char = ' '): String = this.toString().padStart(length, padChar)
+fun Number.padEnd(length: Int, padChar: Char = ' '): String = this.toString().padEnd(length, padChar)
+
+val Double.point2: String get() {
+    if (this.isInfinite() || this.isNaN()) return this.toString()
+    return BigDecimal.valueOf(this).setScale(2, RoundingMode.HALF_UP).toPlainString()
 }
 
 
+//
 // Math
+//
 
 fun Int.abs(): Int = Math.abs(this)
 fun Double.abs(): Double = Math.abs(this)

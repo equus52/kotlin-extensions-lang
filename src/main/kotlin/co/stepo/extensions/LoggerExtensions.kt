@@ -2,6 +2,7 @@ package co.stepo.extensions
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import kotlin.reflect.companionObjectInstance
 
 inline fun Logger.error(message: () -> String) {
     if (this.isErrorEnabled) {
@@ -67,10 +68,18 @@ fun <R : Any> R.logger(): Logger {
     return LoggerFactory.getLogger(unwrapCompanionClass(this.javaClass).name)
 }
 
-fun loggerFor(clazz: Class<*>): Logger {
-    return LoggerFactory.getLogger(unwrapCompanionClass(clazz).name)
+fun Class<*>.logger(): Logger {
+    return LoggerFactory.getLogger(unwrapCompanionClass(this).name)
 }
 
-fun loggerFor(name: String): Logger {
-    return LoggerFactory.getLogger(name)
+fun String.logger(): Logger {
+    return LoggerFactory.getLogger(this)
+}
+
+private fun <T : Any> unwrapCompanionClass(ofClass: Class<T>): Class<*> {
+    return if (ofClass.enclosingClass != null && ofClass.enclosingClass.kotlin.companionObjectInstance?.javaClass == ofClass) {
+        ofClass.enclosingClass
+    } else {
+        ofClass
+    }
 }
