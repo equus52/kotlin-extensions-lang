@@ -7,31 +7,29 @@ Please copy and use the source code like a snippet.
 
 ## Example
 
+Collection
 ```kotlin
-//
-// Collection
-//
+list.peek { logger.debug(it) }.map { ... }
+```
+```kotlin
+list.parallelForEach { ... }
+```
 
-inline fun <T> Iterable<T>.peek(action: (T) -> Unit): List<T> {
-    this.forEach(action)
-    return this.toList()
-}
-
-inline fun <T> Iterable<T>.parallelForEach(crossinline action: (T) -> Unit): Unit {
-    val collection = this as Collection<T>
-    return collection.parallelStream().forEach { action(it) }
-}
+Function
+```kotlin
+val cachedMap: (Int) -> Value = { code: Int -> ... }.memoize()
+```
 
 
+Logger
+```kotlin
+val logger = logger()
+```
 
-//
-// Function
-//
+```kotlin
+logger.debug { "This message is not evaluated unless debug enabled = ${logger.isDebugEnabled}" }
+```
 
-fun <T, R> ((T) -> R).memoize(): (T) -> R {
-    val cache: MutableMap<T, R> = hashMapOf()
-    return { cache[it] ?: synchronized(this) { cache.getOrPut(it, { this(it) }) } }
-}
-
-// ...
+```kotlin
+logger.debugForList { createMessageList() }
 ```
