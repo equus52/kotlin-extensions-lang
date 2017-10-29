@@ -6,7 +6,6 @@ import java.math.RoundingMode
 import java.nio.charset.Charset
 import java.time.LocalDate
 import java.util.*
-import java.util.Collection
 import java.util.stream.Collectors
 
 
@@ -19,20 +18,20 @@ inline fun <T> Iterable<T>.peek(action: (T) -> Unit): List<T> {
     return this.toList()
 }
 
-inline fun <T> Iterable<T>.parallelForEach(crossinline action: (T) -> Unit): Unit {
-    val collection = this as Collection<T>
+inline fun <T> Iterable<T>.parallelForEach(crossinline action: (T) -> Unit) {
+    val collection = this as java.util.Collection<T>
     return collection.parallelStream().forEach { action(it) }
 }
 
 inline fun <T, R> Iterable<T>.parallelMap(crossinline transform: (T) -> R): List<R> {
-    val collection = this as Collection<T>
+    val collection = this as java.util.Collection<T>
     return collection.parallelStream().map { transform(it) }.collect(Collectors.toList<R>())
 }
 
 inline fun <T, R> Iterable<T>.parallelFlatMap(crossinline transform: (T) -> Iterable<R>): List<R> {
-    val collection = this as Collection<T>
+    val collection = this as java.util.Collection<T>
     return collection.parallelStream().flatMap {
-        val list = transform(it) as Collection<R>
+        val list = transform(it) as java.util.Collection<R>
         list.stream()
     }.collect(Collectors.toList<R>())
 }
@@ -43,21 +42,83 @@ inline fun <T, R> Iterable<T>.flatMapForNullable(crossinline transform: (T) -> R
 
 inline fun <K, V, R> Map<K, V>.map(transform: (K, V) -> R): List<R> = this.map { entry -> transform(entry.key, entry.value) }
 
+fun <C : kotlin.collections.Collection<*>> C?.isNullOrEmpty(): Boolean = this == null || this.isEmpty()
+
+fun <C : kotlin.collections.Collection<T>, T> C?.emptyToNull(): C? {
+    return if (this.isNullOrEmpty()) {
+        null
+    } else {
+        this
+    }
+}
+
 
 //
 // String
 //
 
+val Charsets.SJIS: Charset
+    get() = Charset.forName("SJIS")
+
+fun String?.blankToNull(): String? {
+    return if (this.isNullOrBlank()) {
+        null
+    } else {
+        this
+    }
+}
+
 fun String.substringByByte(charset: Charset, startByteIndex: Int, endByteIndex: Int): String {
-    val bytes = this.toByteArray(charset).filterIndexed { i, byte -> i >= startByteIndex && i < endByteIndex }.toByteArray()
+    val bytes = this.toByteArray(charset).filterIndexed { i, byte -> i in startByteIndex..(endByteIndex - 1) }.toByteArray()
     return String(bytes, charset)
 }
 
 fun String.splitToLines(): List<String> = this.split("\r\n|[\n\r\u2028\u2029\u0085]".toRegex())
 
+fun String?.splitBySpace(): List<String> {
+    if (this == null) {
+        return emptyList()
+    }
+    return this.split(Regex("[\\s　]+"))
+}
 
-val Charsets.SJIS: Charset
-    get() = Charset.forName("SJIS")
+
+//
+// Boolean
+//
+
+inline fun <R> Boolean.then(block: () -> R): R? {
+    return if (this) {
+        block()
+    } else {
+        null
+    }
+}
+
+inline fun <R> Boolean.then(block: () -> R, elseValue: R): R {
+    return if (this) {
+        block()
+    } else {
+        elseValue
+    }
+}
+
+fun <R> Boolean.then(value: R): R? {
+    return if (this) {
+        value
+    } else {
+        null
+    }
+}
+
+fun <R> Boolean.then(value: R, elseValue: R): R {
+    return if (this) {
+        value
+    } else {
+        elseValue
+    }
+}
+
 
 //
 // Function
@@ -124,10 +185,11 @@ fun LocalDate.isInRange(from: LocalDate, to: LocalDate): Boolean {
 fun Number.padStart(length: Int, padChar: Char = ' '): String = this.toString().padStart(length, padChar)
 fun Number.padEnd(length: Int, padChar: Char = ' '): String = this.toString().padEnd(length, padChar)
 
-val Double.point2: String get() {
-    if (this.isInfinite() || this.isNaN()) return this.toString()
-    return BigDecimal.valueOf(this).setScale(2, RoundingMode.HALF_UP).toPlainString()
-}
+val Double.point2: String
+    get() {
+        if (this.isInfinite() || this.isNaN()) return this.toString()
+        return BigDecimal.valueOf(this).setScale(2, RoundingMode.HALF_UP).toPlainString()
+    }
 
 
 //
